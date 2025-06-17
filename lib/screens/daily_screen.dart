@@ -98,12 +98,19 @@ class DailyScreenState extends State<DailyScreen> {
 
   Color getRowColor(String meal) {
     final now = DateTime.now();
-    final mealTime = mealTimes[meal]!.split(' - ');
+    final mealTimeString = mealTimes[meal];
+    final status = mealStatus[meal];
+
+    if (mealTimeString == null || status == null) {
+      return Colors.grey; // fallback color for unknown meals
+    }
+
+    final mealTime = mealTimeString.split(' - ');
     final startHour = int.parse(mealTime[0].split(':')[0]);
     final endHour = int.parse(mealTime[1].split(':')[0]);
 
     if (now.hour >= startHour && now.hour < endHour) {
-      return mealStatus[meal]! ? Colors.green : Colors.red;
+      return status ? Colors.green : Colors.red;
     }
     return Colors.grey;
   }
@@ -281,7 +288,7 @@ class QuickRecommendationDialog extends StatefulWidget {
 }
 
 class QuickRecommendationDialogState extends State<QuickRecommendationDialog> {
-  List<String> availableGoals = ["Weight Loss", "Muscle Gain", "Balanced Nutrition"];
+  List<String> availableGoals = ["Refreshing", "High Vitamin C"];
   late String selectedGoal; // Will be initialized in initState
   Map<String, List<String>> mealRecommendations = {
     "Refreshing": ["Watermelon", "Melon"],
@@ -291,7 +298,7 @@ class QuickRecommendationDialogState extends State<QuickRecommendationDialog> {
   @override
   void initState() {
     super.initState();
-    selectedGoal = availableGoals[1]; // Default
+    selectedGoal = availableGoals[0]; // Default
   }
 
   @override
