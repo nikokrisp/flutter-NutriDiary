@@ -1,0 +1,40 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "nutridiary-testrun",
+          "appId": "1:443655647591:android:535a40f8e19ec04befffc2",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "nutridiary-testrun",
+          "configurations": {
+            "android": "1:443655647591:android:535a40f8e19ec04befffc2",
+            "ios": "1:443655647591:ios:3c278728f396baa8efffc2",
+            "macos": "1:443655647591:ios:3c278728f396baa8efffc2",
+            "web": "1:443655647591:web:61d30eee05d018ceefffc2",
+            "windows": "1:443655647591:web:725f25582069a75fefffc2"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+      ]
+    }
+  ]
+}

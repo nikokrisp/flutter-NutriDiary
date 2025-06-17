@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "443655647591",
+    "firebase_url": "https://nutridiary-testrun-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "nutridiary-testrun",
+    "storage_bucket": "nutridiary-testrun.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443655647591:android:535a40f8e19ec04befffc2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_nutridiary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZz3C4K8_3Wq-Fswn-dfIjB6OdZNaWAFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
