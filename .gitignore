@@ -54,3 +54,7 @@ ios/Runner/GoogleService-Info.plist
 *.pem
 *.key
 *.crt
+
+# Firebase Admin SDK service account keys
+*.json
+!firebase.json
