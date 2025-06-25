@@ -148,7 +148,7 @@ class _AddAmountPlanState extends State<AddAmountPlan> {
                     ? () async {
                         for (var entry in amounts.entries) {
                           await dailyMealProvider.postDailyItem(
-                            DailyItem(foodId: entry.key, amount: entry.value.toDouble()),
+                            DailyItem(foodId: entry.key, amount: entry.value),
                           );
                         }
                         if (mounted) {
@@ -167,7 +167,9 @@ class _AddAmountPlanState extends State<AddAmountPlan> {
 }
 
 class CreatePlanPage extends StatefulWidget {
-  const CreatePlanPage({super.key});
+  final bool hasPlan;
+
+  const CreatePlanPage({super.key, required this.hasPlan});
 
   @override
   State<CreatePlanPage> createState() => _CreatePlanPageState();
@@ -205,7 +207,7 @@ class _CreatePlanPageState extends State<CreatePlanPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text(
-        Provider.of<DailyMealProvider>(context, listen: false).dailyItems.isNotEmpty
+        widget.hasPlan
           ? "Change your Daily Plan"
           : "Create a Daily Plan"
       )),

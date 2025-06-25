@@ -292,9 +292,7 @@ class DailyScreenState extends State<DailyScreen> {
                             separatorBuilder: (context, idx) => SizedBox(height: 16),
                             itemBuilder: (context, idx) {
                               final foodId = tempDailyItems[idx]['foodId'];
-                              final amount = tempDailyItems[idx]['amount'] is int
-                                  ? tempDailyItems[idx]['amount']
-                                  : (tempDailyItems[idx]['amount'] as num).toInt();
+                              final amount = tempDailyItems[idx]['amount'];
                               final foodItem = itemProvider.allFoodItems.firstWhere(
                                 (e) => e.foodId == foodId,
                                 orElse: () => itemProvider.allFoodItems.isNotEmpty ? itemProvider.allFoodItems.first : throw Exception('No food items'),
@@ -389,7 +387,7 @@ class DailyScreenState extends State<DailyScreen> {
                     onTap: () async {
                       await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => CreatePlanPage()),
+                        MaterialPageRoute(builder: (_) => CreatePlanPage(hasPlan: tempDailyItems.isNotEmpty)),
                       );
                       // Refresh after returning from planner
                       await _loadOrFetchDailyItems();
@@ -628,13 +626,45 @@ class QuickRecommendationDialogState extends State<QuickRecommendationDialog> {
         TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
         ElevatedButton(
           onPressed: () async {
-            // Check if a plan already exists
             final prefs = await SharedPreferences.getInstance();
             final today = DateTime.now();
             final todayKey = "tempDailyItems_${today.year}_${today.month}_${today.day}";
+            // Check if there is a Firebase plan (from provider)
+            // ignore: use_build_context_synchronously
+            final dailyMealProvider = Provider.of<DailyMealProvider>(context, listen: false);
+            final firebaseItems = dailyMealProvider.dailyItems;
+            final hasFirebasePlan = firebaseItems.isNotEmpty;
+            final foodList = <Map<String, dynamic>>[];
+            final dailyItemList = <DailyItem>[];
+            for (var rec in mealRecommendations[selectedGoal]!) {
+              final name = rec["name"] as String;
+              final amount = customAmounts[name] ?? 1;
+              final food = itemProvider.allFoodItems.firstWhere((f) => f.name == name, orElse: () => itemProvider.allFoodItems.first);
+              foodList.add({"foodId": food.foodId, "amount": amount});
+              dailyItemList.add(DailyItem(foodId: food.foodId, amount: amount));
+            }
+            // If no plan in Firebase, just apply
+            if (!hasFirebasePlan) {
+              await prefs.setString(todayKey, json.encode(foodList));
+              await prefs.setString('tempDailyItems_lastFetched', today.toIso8601String());
+              // Post to Firebase via provider
+              // ignore: use_build_context_synchronously
+              for (final item in dailyItemList) {
+                await dailyMealProvider.postDailyItem(item);
+              }
+              // Refresh the main screen
+              // ignore: use_build_context_synchronously
+              if (context.findAncestorStateOfType<DailyScreenState>() != null) {
+                // ignore: use_build_context_synchronously
+                await context.findAncestorStateOfType<DailyScreenState>()!._loadOrFetchDailyItems();
+              }
+              // ignore: use_build_context_synchronously
+              if (mounted) Navigator.pop(context);
+              return;
+            }
+            // If there IS a plan in Firebase, show confirmation dialog
             final hasPlan = prefs.containsKey(todayKey);
             if (hasPlan) {
-              // Show confirmation dialog
               final confirmed = await showDialog<bool>(
                 // ignore: use_build_context_synchronously
                 context: context,
@@ -649,16 +679,19 @@ class QuickRecommendationDialogState extends State<QuickRecommendationDialog> {
               );
               if (confirmed != true) return;
             }
-            // Build the plan
-            final foodList = <Map<String, dynamic>>[];
-            for (var rec in mealRecommendations[selectedGoal]!) {
-              final name = rec["name"] as String;
-              final amount = customAmounts[name] ?? 1;
-              final food = itemProvider.allFoodItems.firstWhere((f) => f.name == name, orElse: () => itemProvider.allFoodItems.first);
-              foodList.add({"foodId": food.foodId, "amount": amount});
-            }
+            // Build and update the plan
             await prefs.setString(todayKey, json.encode(foodList));
             await prefs.setString('tempDailyItems_lastFetched', today.toIso8601String());
+            // ignore: use_build_context_synchronously
+            await dailyMealProvider.clearDailyItems();
+            for (final item in dailyItemList) {
+              await dailyMealProvider.postDailyItem(item);
+            }
+            // ignore: use_build_context_synchronously
+            if (context.findAncestorStateOfType<DailyScreenState>() != null) {
+              // ignore: use_build_context_synchronously
+              await context.findAncestorStateOfType<DailyScreenState>()!._loadOrFetchDailyItems();
+            }
             // ignore: use_build_context_synchronously
             if (mounted) Navigator.pop(context);
           },

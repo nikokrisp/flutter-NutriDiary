@@ -4,14 +4,14 @@ import 'package:firebase_database/firebase_database.dart';
 
 class DailyItem {
   final int foodId;
-  final double amount;
+  final int amount;
 
   DailyItem({required this.foodId, required this.amount});
 
   factory DailyItem.fromMap(Map<dynamic, dynamic> map) {
     return DailyItem(
       foodId: map['foodId'] is int ? map['foodId'] : int.parse(map['foodId'].toString()),
-      amount: (map['amount'] ?? 0).toDouble(),
+      amount: map['amount'] is int ? map['amount'] : int.parse(map['amount'].toString()),
     );
   }
 
