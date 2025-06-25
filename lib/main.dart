@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_nutridiary/providers/daily_meal_provider.dart';
 import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
 import 'providers/app_state_provider.dart';
@@ -30,6 +31,7 @@ void main() async { // <-- NEW: Make main async
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => ItemProvider()), // Updated provider
         ChangeNotifierProvider(create: (_) => PageIndexProvider()),
+        ChangeNotifierProvider(create: (_) => DailyMealProvider()),
         // SessionProvider removed
       ],
       child: const MyApp(), // Remove SessionManager wrapper
