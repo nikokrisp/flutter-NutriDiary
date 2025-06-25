@@ -46,3 +46,11 @@ app.*.map.json
 
 # Ignore scripts directory
 /scripts/
+
+# Firebase and secrets (never commit these!)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+*.env
+*.pem
+*.key
+*.crt
