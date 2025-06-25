@@ -174,7 +174,7 @@ class DailyScreenState extends State<DailyScreen> {
       case "Night":
         return [Colors.indigo.shade900, Colors.indigo.shade700, Colors.deepPurple.shade400, Colors.deepPurple.shade200];
       default:
-        return [Colors.grey.shade200, Colors.grey.shade100, Colors.grey.shade50]; // Fallback
+        return [Colors.amber.shade200, Colors.amber.shade100, Colors.amber.shade50]; // Fallback
     }
   }
 
@@ -680,17 +680,11 @@ class QuickRecommendationDialogState extends State<QuickRecommendationDialog> {
               if (confirmed != true) return;
             }
             // Build and update the plan
-            await prefs.setString(todayKey, json.encode(foodList));
-            await prefs.setString('tempDailyItems_lastFetched', today.toIso8601String());
-            // ignore: use_build_context_synchronously
+            await prefs.remove(todayKey);
+            await prefs.remove('tempDailyItems_lastFetched');
             await dailyMealProvider.clearDailyItems();
             for (final item in dailyItemList) {
               await dailyMealProvider.postDailyItem(item);
-            }
-            // ignore: use_build_context_synchronously
-            if (context.findAncestorStateOfType<DailyScreenState>() != null) {
-              // ignore: use_build_context_synchronously
-              await context.findAncestorStateOfType<DailyScreenState>()!._loadOrFetchDailyItems();
             }
             // ignore: use_build_context_synchronously
             if (mounted) Navigator.pop(context);

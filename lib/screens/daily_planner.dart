@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/item_provider.dart';
 import '../providers/daily_meal_provider.dart';
 
 class AddAmountPlan extends StatefulWidget {
   final List<int> foodIds;
-  const AddAmountPlan({super.key, required this.foodIds});
+  final bool hasPlan; // <-- Add this
+  const AddAmountPlan({super.key, required this.foodIds, required this.hasPlan});
 
   @override
   State<AddAmountPlan> createState() => _AddAmountPlanState();
@@ -146,13 +148,23 @@ class _AddAmountPlanState extends State<AddAmountPlan> {
                 ),
                 onPressed: allFilled
                     ? () async {
+                        if (widget.hasPlan) {
+                          // Remove SharedPreferences cache for today
+                          final prefs = await SharedPreferences.getInstance();
+                          final today = DateTime.now();
+                          final todayKey = "tempDailyItems_${today.year}_${today.month}_${today.day}";
+                          await prefs.remove(todayKey);
+                          await prefs.remove('tempDailyItems_lastFetched');
+                          await dailyMealProvider.clearDailyItems();
+                        }
                         for (var entry in amounts.entries) {
                           await dailyMealProvider.postDailyItem(
                             DailyItem(foodId: entry.key, amount: entry.value),
                           );
                         }
                         if (mounted) {
-                          Navigator.of(context == context ? context : context).popUntil((route) => route.isFirst);
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context).popUntil((route) => route.isFirst); // Pop with result to trigger refresh
                         }
                       }
                     : null,
@@ -356,7 +368,7 @@ class _CreatePlanPageState extends State<CreatePlanPage> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => AddAmountPlan(foodIds: checkedList.map((e) => e.foodId).toList())),
+                            MaterialPageRoute(builder: (_) => AddAmountPlan(foodIds: checkedList.map((e) => e.foodId).toList(), hasPlan: widget.hasPlan)),
                           );
                         },
                         child: Container(
